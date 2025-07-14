@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUSSY RUN - Solana Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s infinite;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #ccc;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .lives {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .level {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00bfff;
+        }
+
+        .power-mode {
+            font-size: 1.2rem;
+            color: #ffd700;
+            animation: bounce 1s infinite;
+        }
+
+        .game-status {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-over {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+
+        .game-won {
+            color: #00ff00;
+            animation: bounce 1s infinite;
+        }
+
+        .game-grid {
+            display: grid;
+            gap: 0;
+            border: 4px solid #ffd700;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            margin-bottom: 20px;
+            background: #0a0a0a;
+        }
+
+        .cell {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 1px solid #333;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .cell:hover {
+            transform: scale(1.1);
+        }
+
+        .wall {
+            background: linear-gradient(45deg, #8b5cf6, #3b82f6);
+        }
+
+        .empty {
+            background: #1a1a2e;
+        }
+
+        .cash {
+            background: #1a1a2e;
+        }
+
+        .diamond {
+            background: #1a1a2e;
+        }
+
+        .cat {
+            background: #1a1a2e;
+            font-size: 18px;
+        }
+
+        .cat.power {
+            background: #ffd700;
+            animation: glow 0.5s infinite alternate;
+        }
+
+        .human {
+            background: #1a1a2e;
+            font-size: 18px;
+        }
+
+        .human.stunned {
+            animation: spin 0.5s infinite;
+        }
+
+        .particle-cash {
+            background: #00ff00;
+            animation: flash 0.3s;
+        }
+
+        .particle-diamond {
+            background: #8b5cf6;
+            animation: flash 0.3s;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .control-text {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .key-highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .reset-button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .reset-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            font-size: 1.2rem;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #ffd700; }
+            100% { box-shadow: 0 0 20px #ffd700; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2.5rem; }
+            .cell { width: 20px; height: 20px; font-size: 12px; }
+            .stats { gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">PUSSY RUN</h1>
+        <div class="subtitle">💰 Solana Edition 💰</div>
+        
+        <div class="high-score" id="highScore">🏆 High Score: 0</div>
+        
+        <div class="stats">
+            <div class="score" id="score">💰 Score: 0</div>
+            <div class="lives" id="lives">❤️ Lives: 3</div>
+            <div class="level" id="level">🎯 Level: 1</div>
+            <div class="power-mode" id="powerMode" style="display: none;">⚡ POWER MODE! ⚡</div>
+        </div>
+        
+        <div class="game-status" id="gameStatus"></div>
+        
+        <div class="game-grid" id="gameGrid"></div>
+        
+        <div class="controls">
+            <div class="control-text">🎮 <span class="key-highlight">WASD</span> or <span class="key-highlight">Arrow Keys</span> to move</div>
+            <div class="control-text">Collect 💰 for cash! Grab 💎 for power mode!</div>
+            <div class="control-text">Avoid the humans chasing you! 🏃‍♂️</div>
+        </div>
+        
+        <button class="reset-button" id="resetButton" onclick="resetGame()">🚀 PUMP AGAIN! 🚀</button>
+    </div>
+
+    <script>
+        const GRID_SIZE = 28;
+        const GAME_WIDTH = 35;
+        const GAME_HEIGHT = 20;
+        const WALL = 1;
+        const EMPTY = 0;
+        const CASH = 2;
+        const DIAMOND = 3;
+
+        const INITIAL_MAZE = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1],
+            [1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],
+            [1,2,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,2,1],
+            [1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],
+            [1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        let gameState = {
+            catPos: { x: 1, y: 1 },
+            humans: [
+                { x: 17, y: 10, dx: 1, dy: 0, color: '#ff4444', stunned: false },
+                { x: 16, y: 10, dx: -1, dy: 0, color: '#4444ff', stunned: false },
+                { x: 18, y: 10, dx: 0, dy: 1, color: '#44ff44', stunned: false },
+                { x: 17, y: 9, dx: 0, dy: -1, color: '#ff44ff', stunned: false }
+            ],
+            maze: INITIAL_MAZE.map(row => [...row]),
+            score: 0,
+            lives: 3,
+            level: 1,
+            gameOver: false,
+            gameWon: false,
+            powerMode: false,
+            powerModeTimer: 0,
+            particles: [],
+            gameSpeed: 150
+        };
+
+        let highScore = localStorage.getItem('pussyRunHighScore') || 0;
+        let gameLoop;
+
+        function initGame() {
+            const grid = document.getElementById('gameGrid');
+            grid.style.gridTemplateColumns = `repeat(${GAME_WIDTH}, ${GRID_SIZE}px)`;
+            
+            updateDisplay();
+            createGrid();
+            startGameLoop();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+            
+            for (let y = 0; y < GAME_HEIGHT; y++) {
+                for (let x = 0; x < GAME_WIDTH; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${x}-${y}`;
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = `💰 Score: ${gameState.score.toLocaleString()}`;
+            document.getElementById('lives').textContent = `❤️ Lives: ${gameState.lives}`;
+            document.getElementById('level').textContent = `🎯 Level: ${gameState.level}`;
+            document.getElementById('highScore').textContent = `🏆 High Score: ${highScore.toLocaleString()}`;
+            
+            const powerModeElement = document.getElementById('powerMode');
+            if (gameState.powerMode) {
+                powerModeElement.style.display = 'block';
+                powerModeElement.textContent = `⚡ POWER MODE! ${Math.ceil(gameState.powerModeTimer / 10)} ⚡`;
+            } else {
+                powerModeElement.style.display = 'none';
+            }
+            
+            const statusElement = document.getElementById('gameStatus');
+            if (gameState.gameOver) {
+                statusElement.textContent = '🚨 CAUGHT! 🚨';
+                statusElement.className = 'game-status game-over';
+            } else if (gameState.gameWon) {
+                statusElement.textContent = '🎉 RICH AF! 🎉';
+                statusElement.className = 'game-status game-won';
+            } else {
+                statusElement.textContent = '';
+                statusElement.className = 'game-status';
+            }
+        }
+
+        function renderGrid() {
+            for (let y = 0; y < GAME_HEIGHT; y++) {
+                for (let x = 0; x < GAME_WIDTH; x++) {
+                    const cell = document.getElementById(`cell-${x}-${y}`);
+                    const cellValue = gameState.maze[y][x];
+                    
+                    // Reset cell
+                    cell.textContent = '';
+                    cell.className = 'cell';
+                    
+                    // Set base cell type
+                    if (cellValue === WALL) {
+                        cell.classList.add('wall');
+                    } else if (cellValue === CASH) {
+                        cell.classList.add('cash');
+                        cell.textContent = '💰';
+                    } else if (cellValue === DIAMOND) {
+                        cell.classList.add('diamond');
+                        cell.textContent = '💎';
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    
+                    // Add cat
+                    if (gameState.catPos.x === x && gameState.catPos.y === y) {
+                        cell.classList.add('cat');
+                        if (gameState.powerMode) {
+                            cell.classList.add('power');
+                            cell.textContent = '😸';
+                        } else {
+                            cell.textContent = '🐱';
+                        }
+                    }
+                    
+                    // Add humans
+                    gameState.humans.forEach(human => {
+                        if (human.x === x && human.y === y) {
+                            cell.classList.add('human');
+                            if (human.stunned) {
+                                cell.classList.add('stunned');
+                                cell.textContent = '😵';
+                            } else {
+                                cell.textContent = '🏃';
+                            }
+                        }
+                    });
+                    
+                    // Add particles
+                    gameState.particles.forEach(particle => {
+                        if (Math.floor(particle.x) === x && Math.floor(particle.y) === y) {
+                            if (particle.type === 'cash') {
+                                cell.classList.add('particle-cash');
+                            } else if (particle.type === 'diamond') {
+                                cell.classList.add('particle-diamond');
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function isValidMove(x, y) {
+            return x >= 0 && x < GAME_WIDTH && y >= 0 && y < GAME_HEIGHT && gameState.maze[y][x] !== WALL;
+        }
+
+        function createParticle(x, y, type) {
+            const particle = {
+                id: Date.now() + Math.random(),
+                x,
+                y,
+                type,
+                life: 20
+            };
+            gameState.particles.push(particle);
+        }
+
+        function moveCat(dx, dy) {
+            if (gameState.gameOver || gameState.gameWon) return;
+            
+            const newX = gameState.catPos.x + dx;
+            const newY = gameState.catPos.y + dy;
+            
+            if (isValidMove(newX, newY)) {
+                if (gameState.maze[newY][newX] === CASH) {
+                    gameState.maze[newY][newX] = EMPTY;
+                    gameState.score += 100 * gameState.level;
+                    createParticle(newX, newY, 'cash');
+                } else if (gameState.maze[newY][newX] === DIAMOND) {
+                    gameState.maze[newY][newX] = EMPTY;
+                    gameState.score += 1000 * gameState.level;
+                    gameState.powerMode = true;
+                    gameState.powerModeTimer = 100;
+                    createParticle(newX, newY, 'diamond');
+                    
+                    // Stun humans
+                    gameState.humans.forEach(human => {
+                        human.stunned = true;
+                        setTimeout(() => {
+                            human.stunned = false;
+                        }, 3000);
+                    });
+                }
+                gameState.catPos = { x: newX, y: newY };
+            }
+        }
+
+        function moveHumans() {
+            if (gameState.gameOver || gameState.gameWon) return;
+            
+            gameState.humans.forEach(human => {
+                if (human.stunned) return;
+                
+                let newX = human.x + human.dx;
+                let newY = human.y + human.dy;
+                let newDx = human.dx;
+                let newDy = human.dy;
+                
+                // Enhanced AI: try to move towards cat occasionally
+                if (Math.random() < 0.2) {
+                    const catX = gameState.catPos.x;
+                    const catY = gameState.catPos.y;
+                    
+                    if (Math.abs(catX - human.x) > Math.abs(catY - human.y)) {
+                        newDx = catX > human.x ? 1 : -1;
+                        newDy = 0;
+                    } else {
+                        newDx = 0;
+                        newDy = catY > human.y ? 1 : -1;
+                    }
+                    
+                    newX = human.x + newDx;
+                    newY = human.y + newDy;
+                }
+                
+                if (Math.random() < 0.1) {
+                    const directions = [
+                        { dx: 1, dy: 0 },
+                        { dx: -1, dy: 0 },
+                        { dx: 0, dy: 1 },
+                        { dx: 0, dy: -1 }
+                    ];
+                    const randomDir = directions[Math.floor(Math.random() * directions.length)];
+                    newDx = randomDir.dx;
+                    newDy = randomDir.dy;
+                    newX = human.x + newDx;
+                    newY = human.y + newDy;
+                }
+                
+                if (!isValidMove(newX, newY)) {
+                    const directions = [
+                        { dx: 1, dy: 0 },
+                        { dx: -1, dy: 0 },
+                        { dx: 0, dy: 1 },
+                        { dx: 0, dy: -1 }
+                    ];
+                    
+                    const validDirections = directions.filter(dir => 
+                        isValidMove(human.x + dir.dx, human.y + dir.dy)
+                    );
+                    
+                    if (validDirections.length > 0) {
+                        const randomDir = validDirections[Math.floor(Math.random() * validDirections.length)];
+                        newDx = randomDir.dx;
+                        newDy = randomDir.dy;
+                        newX = human.x + newDx;
+                        newY = human.y + newDy;
+                    } else {
+                        newX = human.x;
+                        newY = human.y;
+                        newDx = -human.dx;
+                        newDy = -human.dy;
+                    }
+                }
+                
+                human.x = newX;
+                human.y = newY;
+                human.dx = newDx;
+                human.dy = newDy;
+            });
+        }
+
+        function checkCollisions() {
+            if (gameState.powerMode) return;
+            
+            gameState.humans.forEach(human => {
+                if (human.x === gameState.catPos.x && human.y === gameState.catPos.y) {
+                    gameState.lives--;
+                    if (gameState.lives <= 0) {
+                        gameState.gameOver = true;
+                        if (gameState.score > highScore) {
+                            highScore = gameState.score;
+                            localStorage.setItem('pussyRunHighScore', highScore);
+                        }
+                    } else {
+                        // Reset cat position
+                        gameState.catPos = { x: 1, y: 1 };
+                        // Brief invincibility
+                        gameState.powerMode = true;
+                        gameState.powerModeTimer = 30;
+                    }
+                }
+            });
+        }
+
+        function checkWin() {
+            const cashCount = gameState.maze.flat().filter(cell => cell === CASH || cell === DIAMOND).length;
+            if (cashCount === 0) {
+                gameState.gameWon = true;
+                gameState.level++;
+                gameState.score += 5000 * gameState.level;
+                
+                // Generate new level
+                setTimeout(() => {
+                    generateNewLevel();
+                }, 2000);
+            }
+        }
+
+        function generateNewLevel() {
+            // Reset maze with more diamonds for higher levels
+            gameState.maze = INITIAL_MAZE.map(row => [...row]);
+            
+            // Add extra diamonds based on level
+            for (let i = 0; i < gameState.level; i++) {
+                let x, y;
+                do {
+                    x = Math.floor(Math.random() * GAME_WIDTH);
+                    y = Math.floor(Math.random() * GAME_HEIGHT);
+                } while (gameState.maze[y][x] !== CASH);
+                
+                gameState.maze[y][x] = DIAMOND;
+            }
+            
+            // Reset positions
+            gameState.catPos = { x: 1, y: 1 };
+            gameState.humans = [
+                { x: 17, y: 10, dx: 1, dy: 0, color: '#ff4444', stunned: false },
+                { x: 16, y: 10, dx: -1, dy: 0, color: '#4444ff', stunned: false },
+                { x: 18, y: 10, dx: 0, dy: 1, color: '#44ff44', stunned: false },
+                { x: 17, y: 9, dx: 0, dy: -1, color: '#ff44ff', stunned: false }
+            ];
+            
+            // Increase speed
+            gameState.gameSpeed = Math.max(80, gameState.gameSpeed - 10);
+            
+            gameState.gameWon = false;
+            gameState.powerMode = false;
+            gameState.powerModeTimer = 0;
+        }
+
+        function updateParticles() {
+            gameState.particles = gameState.particles.filter(particle => {
+                particle.life--;
+                return particle.life > 0;
+            });
+        }
+
+        function updatePowerMode() {
+            if (gameState.powerModeTimer > 0) {
+                gameState.powerModeTimer--;
+            } else {
+                gameState.powerMode = false;
+            }
+        }
+
+        function gameUpdate() {
+            if (gameState.gameOver || gameState.gameWon) return;
+            
+            moveHumans();
+            checkCollisions();
+            checkWin();
+            updateParticles();
+            updatePowerMode();
+            updateDisplay();
+            renderGrid();
+        }
+
+        function startGameLoop() {
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(gameUpdate, gameState.powerMode ? 300 : gameState.gameSpeed);
+        }
+
+        function resetGame() {
+            gameState = {
+                catPos: { x: 1, y: 1 },
+                humans: [
+                    { x: 17, y: 10, dx: 1, dy: 0, color: '#ff4444', stunned: false },
+                    { x: 16, y: 10, dx: -1, dy: 0, color: '#4444ff', stunned: false },
+                    { x: 18, y: 10, dx: 0, dy: 1, color: '#44ff44', stunned: false },
+                    { x: 17, y: 9, dx: 0, dy: -1, color: '#ff44ff', stunned: false }
+                ],
+                maze: INITIAL_MAZE.map(row => [...row]),
+                score: 0,
+                lives: 3,
+                level: 1,
+                gameOver: false,
+                gameWon: false,
+                powerMode: false,
+                powerModeTimer: 0,
+                particles: [],
+                gameSpeed: 150
+            };
+            
+            updateDisplay();
+            renderGrid();
+            startGameLoop();
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    moveCat(0, -1);
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    moveCat(0, 1);
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    e.preventDefault();
+                    moveCat(-1, 0);
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    moveCat(1, 0);
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    if (gameState.gameOver || gameState.gameWon) {
+                        resetGame();
+                    }
+                    break;
+            }
+        });
+
+        // Initialize game
+        initGame();
+    </script>
+</body>
+</html>
